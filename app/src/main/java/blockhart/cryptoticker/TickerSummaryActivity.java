@@ -12,6 +12,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import classes.CoinData;
 import classes.Requester;
@@ -29,16 +30,22 @@ public class TickerSummaryActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //TODO Get coin data from coinmarketcap
+        // Get coin data from coinmarketcap
         requester = new Requester();
-        favoriteCoins = new ArrayList();
+//        favoriteCoins = new ArrayList();
+        favoriteCoins = new ArrayList<>(Arrays.asList("bitcoin",
+                                                    "ethereum",
+                                                    "omisego",
+                                                    "district0x",
+                                                    "ripple",
+                                                    "tierion",
+                                                    "monaco"));
         coins = retrieveCoinData(favoriteCoins);
-        //TODO put coin data into ExpandableListView
 
         //TODO make table row with coin's data
-        TableLayout coinTable = (TableLayout) findViewById(R.id.coinData);
-        TableRow row = new TableRow(this);
-        row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT));
+//        TableLayout coinTable = (TableLayout) findViewById(R.id.coinData);
+//        TableRow row = new TableRow(this);
+//        row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT));
 //        row.addView(COLUMN?);
 
 
@@ -76,11 +83,16 @@ public class TickerSummaryActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Make a request to Coinmarketcap API to get latest coin data
+     * @param coinsToRetrieve
+     * @return
+     */
     private ArrayList<CoinData> retrieveCoinData(ArrayList<String> coinsToRetrieve) {
         ArrayList coinData = new ArrayList();
 
         //for each coin to retrieve, get the data and
-        requester.getCoinData();
+        requester.getCoinData(TickerSummaryActivity.this, coinsToRetrieve);
 
 
 

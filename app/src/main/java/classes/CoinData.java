@@ -48,5 +48,16 @@ public class CoinData {
         return change24h;
     }
 
+    /**
+     * Prints the coin's data to the console
+     */
+    public void printData() {
+        System.out.println("Symbol: " + symbol);
+        System.out.println("Price (USD): " + priceUSD);
+        System.out.println("Price (BTC): " + priceBTC);
+        System.out.println("Change 1h: " + change1h);
+        System.out.println("Change 24h: " + change24h);
+    }
+
 
 }

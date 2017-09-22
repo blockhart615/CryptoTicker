@@ -1,30 +1,32 @@
 package classes;
 
 import android.content.Context;
-import android.content.Intent;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Requester {
 
-    private final String API_URL = "https://api.coinmarketcap.com/v1/ticker/";
-    ArrayList<String> favorites;
-//    FAVORITE_COINS = ["bitcoin", "ethereum", "omisego", "district0x", "ripple", "tierion", "monaco"]
+    private final String API_URL = "https://api.coinmarketcap.com/v1/ticker/"; // EXAMPLE: https://api.coinmarketcap.com/v1/ticker/bitcoin/
+    private ArrayList<String> favorites;
+    private HashMap<String, CoinData> coinDatas;
 
     /**
      * Constructor
      */
     public Requester() {
-
+        coinDatas = new HashMap<>();
     }
 
 
@@ -32,65 +34,75 @@ public class Requester {
      * perform API request to coinmarketcap.com to get coin data as JSON object.
      * @return
      */
-    private JSONObject getCoinData() {
-        JSONObject jsonCoinData = new JSONObject();
+    public void getCoinData(final Context context, ArrayList<String> coinsToRetrieve) {
 
-        return jsonCoinData;
+        this.favorites = coinsToRetrieve;
+
+        //Get the coin data for each of the coins in the favorites list
+        for (String coinName : favorites) {
+
+            // API request
+            StringRequest stringRequest = new StringRequest(
+                    Request.Method.GET,
+                    API_URL + coinName,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            //TODO do stuff
+                            try {
+                                JSONArray responseArray = new JSONArray(response);
+                                JSONObject jsonResponse = responseArray.getJSONObject(0);
+
+                                if (!jsonResponse.has("error")) {
+
+                                    CoinData coinData = parseResponse(jsonResponse);
+                                    coinDatas.put(coinData.getSymbol(), coinData);
+                                    coinData.printData();
+
+
+                                } else {
+                                    Toast.makeText(context, jsonResponse.getString("error"), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException e) {
+                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(context, "API Request Error", Toast.LENGTH_SHORT).show();
+                        }
+                    });  // END StringRequest
+
+            MySingleton.getInstance(context).addToRequestQueue(stringRequest);
+        }  // END for each favorite coin
+
+        //TODO After all the requests have been made, populate data into table
+
+
     }
-
 
     /**
-     * Log the user in
-     * @param password
-     * @param context
+     * parses JSONObject that is returned from coinmarketcap into coinData objects
+     * @param coinsJSON
+     * @return the coin data in a CoinData object
      */
-    public void login(final String username,
-                      final String password,
-                      final Context context) {
-        this.username = username;
-        this.password = password;
+    private CoinData parseResponse(JSONObject coinsJSON) {
+        try {
+            String name = coinsJSON.getString("name");
+            float priceUSD = Float.parseFloat(coinsJSON.getString("price_usd"));
+            float priceBTC = Float.parseFloat(coinsJSON.getString("price_btc"));
+            float change1h = Float.parseFloat(coinsJSON.getString("percent_change_1h"));
+            float change24h = Float.parseFloat(coinsJSON.getString("percent_change_24h"));
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, API_URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Display the resposne from the server
-                        try {
-                            loginResponse = new JSONObject(response);
-                            if (!loginResponse.getBoolean("error")) {
-                                //if login is successful, send user to Inbox
-                                jwt = loginResponse.getString("jwt");
-                                Intent intent = new Intent("com.toastabout.SecureChat.InboxActivity");
-                                intent.putExtra("jwt", jwt);
-                                intent.putExtra("username", username);
-                                context.startActivity(intent);
-                            } else {
-                                Toast.makeText(context, loginResponse.getString("error_msg"), Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-
-                    }//END ON_RESPONSE
-                },//END RESPONSE LISTENER
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(context, "That didn't work!", Toast.LENGTH_SHORT).show();
-                    }
-                }) {
-            @Override
-            protected HashMap<String, String> getParams() {
-                HashMap<String, String> params = new HashMap<>();
-                params.put("username", username);
-                params.put("password", password);
-                return params;
-            }
-        };
-
-        MySingleton.getInstance(context).addToRequestQueue(stringRequest);
-
+            CoinData coinData = new CoinData(name, priceUSD, priceBTC, change1h, change24h);
+            return coinData;
+        }
+        catch (JSONException e){
+            //TODO handle this exception
+        }
+        return null;
     }
 
-}
+}  // END Requester class
