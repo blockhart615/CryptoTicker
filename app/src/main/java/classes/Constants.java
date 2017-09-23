@@ -5,10 +5,6 @@ import java.util.Map;
 
 import static android.graphics.Color.rgb;
 
-/**
- * Created by root on 9/22/17.
- */
-
 public class Constants {
 
     // API

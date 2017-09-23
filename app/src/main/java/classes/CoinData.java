@@ -1,9 +1,5 @@
 package classes;
 
-/**
- * Created by root on 9/12/17.
- */
-
 public class CoinData {
     private String name;
     private String symbol;
@@ -11,7 +7,6 @@ public class CoinData {
     private float priceBTC;
     private float change1h;
     private float change24h;
-
 
     /**
      * Construct object that will hold current data for a particular coin
@@ -21,12 +16,8 @@ public class CoinData {
      * @param change_1h
      * @param change_24h
      */
-    public CoinData(String name,
-                    String symbol,
-                    float price_usd,
-                    float price_btc,
-                    float change_1h,
-                    float change_24h) {
+    public CoinData(String name, String symbol, float price_usd, float price_btc, float change_1h, float change_24h)
+    {
         this.name = name;
         this.symbol = symbol;
         this.priceUSD = price_usd;
@@ -35,9 +26,11 @@ public class CoinData {
         this.change24h = change_24h;
     }
 
-    public String getSymbol() {
-        return symbol;
-    }
+    /*
+     * Getters
+     */
+    public String getSymbol() { return symbol; }
+    public String getName() { return name; }
     public float getPriceUSD() {
         return priceUSD;
     }
@@ -50,17 +43,5 @@ public class CoinData {
     public float get24hChange() {
         return change24h;
     }
-
-    /**
-     * Prints the coin's data to the console
-     */
-    public void printData() {
-        System.out.println("Symbol: " + symbol);
-        System.out.println("Price (USD): " + priceUSD);
-        System.out.println("Price (BTC): " + priceBTC);
-        System.out.println("Change 1h: " + change1h);
-        System.out.println("Change 24h: " + change24h);
-    }
-
 
 }
